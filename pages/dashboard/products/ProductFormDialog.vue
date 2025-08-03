@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useProductForm } from '~/composables/useProductForm'
 import { useRuntimeConfig, useAuthStore } from '#imports'
+import { toast } from 'vue-sonner'
 
 const props = defineProps<{
   open: boolean
@@ -58,6 +59,7 @@ const submit = async () => {
     show.value = false
     emit('submitted')
     reset()
+    toast.success('Product submitted successfully')
   } catch (err) {
     console.error('Failed to submit form. API error:', err)
   }
@@ -89,7 +91,7 @@ const submit = async () => {
 
       <div>
         <label class="block text-sm font-medium mb-1">Details</label>
-        <Textarea v-model="form.details" rows="3" />
+        <Textarea v-model="form.description" rows="3" />
         <p v-if="errors.details" class="text-sm text-red-500">{{ errors.details }}</p>
       </div>
 

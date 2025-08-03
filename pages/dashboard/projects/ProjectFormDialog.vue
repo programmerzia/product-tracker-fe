@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useProjectForm } from '~/composables/useProjectForm'
 import { useRuntimeConfig, useAuthStore } from '#imports'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-
+import { toast } from 'vue-sonner'
 const props = defineProps<{
   open: boolean
   project: any
@@ -45,17 +45,21 @@ const submit = async () => {
 
   const method = isEditing.value ? 'PATCH' : 'POST'
 
-  await $fetch(url, {
-    method,
-    body: form.value,
-    headers: {
-        Authorization: `Bearer ${auth.token}` // If token is required
+  try {
+    await $fetch(url, {
+      method,
+      body: form.value,
+      headers: {
+        Authorization: `Bearer ${auth.token}`
       }
-  })
-
-  emit('submitted')
-  show.value = false
-  reset()
+    })
+    emit('submitted')
+    show.value = false
+    reset()
+  } catch (err) {
+    toast.error('Failed to submit form. API error:', err)
+  }
+  
 }
 </script>
 
@@ -68,7 +72,7 @@ const submit = async () => {
         <div>
           <label class="text-sm block mb-1">Product</label>
           <Select v-model="form.product_id">
-            <SelectTrigger>
+            <SelectTrigger class="w-full">
               <SelectValue placeholder="Select Product" />
             </SelectTrigger>
             <SelectContent>

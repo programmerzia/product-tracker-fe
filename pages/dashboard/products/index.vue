@@ -21,8 +21,7 @@ onMounted(() => {
   }
 })
 
-const { products, fetchProducts } = useFetchProducts()
-console.log(products.value);
+const { products, fetchProducts, error } = useFetchProducts()
 
 const editingProduct = ref(null)
 const dialogOpen = ref(false)

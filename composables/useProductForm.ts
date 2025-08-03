@@ -4,7 +4,7 @@ import { z } from 'zod'
 const schema = z.object({
   name: z.string().min(1),
   version: z.string().min(1),
-  details: z.string().min(1),
+  description: z.string().min(1),
   price: z.number().positive()
 })
 
@@ -12,7 +12,7 @@ export const useProductForm = () => {
   const form = ref({
     name: '',
     version: '',
-    details: '',
+    description: '',
     price: 0
   })
 
@@ -33,7 +33,7 @@ export const useProductForm = () => {
     form.value = {
       name: data.name || '',
       version: data.version || '',
-      details: data.details || '',
+      description: data.details || '',
       price: Number(data.price) || 0
     }
   }
@@ -42,7 +42,7 @@ export const useProductForm = () => {
     form.value = {
       name: '',
       version: '',
-      details: '',
+      description: '',
       price: 0
     }
     errors.value = {}

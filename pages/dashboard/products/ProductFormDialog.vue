@@ -70,7 +70,7 @@ const submit = async () => {
 <template>
  <Dialog v-model:open="show">
   <DialogTrigger>
-     <Plus class="h-4 w-4 mr-2" /> <Button> Add Product</Button>
+     <Plus class="h-4 w-4 mr-2" /> <Button class="bg-primary"> Add Product</Button>
   </DialogTrigger>
 
   <DialogContent class="p-6 max-w-md w-full rounded-md shadow space-y-4 bg-card text-foreground">

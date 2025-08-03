@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Plus, Pencil } from 'lucide-vue-next'
 import { useAuthStore } from '~/stores/auth'
 import { createError } from 'h3'
 import ProductItemFormDialog from './ProductItemFormDialog.vue'
 import ProductItemStatusDialog from './ProductItemStatusDialog.vue'
+
 definePageMeta({
   middleware: 'auth',
   layout: 'dashboard'
@@ -32,10 +33,7 @@ const handleEdit = (item: any) => {
 const handleAdd = () => {
   editingItem.value = null
   dialogOpen.value = true
-  
-  
 }
-
 
 const showStatusDialog = ref(false)
 const selectedItem = ref(null)
@@ -44,6 +42,7 @@ const openStatusDialog = (item: any) => {
   selectedItem.value = item
   showStatusDialog.value = true
 }
+
 const statusMap: Record<string, { label: string; color: string }> = {
   pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
   in_progress: { label: 'In Progress', color: 'bg-blue-100 text-blue-800' },
@@ -51,6 +50,35 @@ const statusMap: Record<string, { label: string; color: string }> = {
   blocked: { label: 'Blocked', color: 'bg-red-100 text-red-800' },
 }
 
+// --- SEARCH & PAGINATION ---
+const searchTerm = ref('')
+const currentPage = ref(1)
+const itemsPerPage = 10
+
+const filteredItems = computed(() => {
+  if (!searchTerm.value) return productItems.value
+  const term = searchTerm.value.toLowerCase()
+  return (productItems.value ?? []).filter(item =>
+    item.name.toLowerCase().includes(term) ||
+    (item.version?.toLowerCase().includes(term)) ||
+    (item.status?.toLowerCase().includes(term)) ||
+    (item?.project?.name?.toLowerCase().includes(term))
+  )
+})
+
+const totalPages = computed(() =>
+  Math.ceil((filteredItems.value ?? []).length / itemsPerPage)
+)
+
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  return (filteredItems.value ?? []).slice(start, start + itemsPerPage)
+})
+
+function goToPage(page: number) {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
+}
 </script>
 
 <template>
@@ -68,6 +96,14 @@ const statusMap: Record<string, { label: string; color: string }> = {
         Add Item
       </button>
     </header>
+
+    <!-- Search input -->
+    <input
+      type="text"
+      v-model="searchTerm"
+      placeholder="Search items..."
+      class="border rounded px-3 py-2 w-full max-w-xs mb-4"
+    />
 
     <section class="rounded p-4 bg-card border border-border">
       <div v-if="error" class="text-red-500">Failed to load items. Please try again.</div>
@@ -88,7 +124,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
         </thead>
         <tbody>
           <tr
-            v-for="item in productItems"
+            v-for="item in paginatedItems"
             :key="item.id"
             class="border-b hover:bg-muted/20"
           >
@@ -117,11 +153,46 @@ const statusMap: Record<string, { label: string; color: string }> = {
               >
                 Change Status
               </button>
-
+            </td>
+          </tr>
+          <tr v-if="paginatedItems.length === 0">
+            <td colspan="5" class="py-4 text-center text-gray-500">
+              No product items found.
             </td>
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination Controls -->
+      <div class="mt-4 flex justify-center space-x-2">
+        <button
+          @click="goToPage(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <button
+          v-for="page in totalPages"
+          :key="page"
+          @click="goToPage(page)"
+          :class="[
+            'px-3 py-1 border rounded',
+            currentPage === page ? 'bg-blue-600 text-white' : ''
+          ]"
+        >
+          {{ page }}
+        </button>
+
+        <button
+          @click="goToPage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+          class="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </section>
 
     <!-- Add/Edit Dialog -->
@@ -135,6 +206,5 @@ const statusMap: Record<string, { label: string; color: string }> = {
       :item="selectedItem"
       @updated="fetchProductItems"
     />
-
   </div>
 </template>

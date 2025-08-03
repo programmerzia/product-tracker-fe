@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useProductForm } from '~/composables/useProductForm'
 import { useRuntimeConfig, useAuthStore } from '#imports'
 import { toast } from 'vue-sonner'
+import { Plus } from 'lucide-vue-next'
 
 const props = defineProps<{
   open: boolean
@@ -22,6 +23,7 @@ watch(show, val => emit('update:open', val))
 const { form, errors, validate, reset, fill } = useProductForm()
 const config = useRuntimeConfig()
 const auth = useAuthStore()
+
 
 // Fill form when editing
 watch(
@@ -70,12 +72,12 @@ const submit = async () => {
 <template>
  <Dialog v-model:open="show">
   <DialogTrigger>
-     <Plus class="h-4 w-4 mr-2" /> <Button class="bg-primary"> Add Product</Button>
+     <Button> Add Product</Button>
   </DialogTrigger>
 
   <DialogContent class="p-6 max-w-md w-full rounded-md shadow space-y-4 bg-card text-foreground">
     <h2 class="text-lg font-semibold"> {{ isEditing ? 'Edit Product' : 'Add Product' }} </h2>
-
+{{ JSON.stringify(props.product, null, 2) }}
     <form @submit.prevent="submit" class="space-y-4">
       <div>
         <label class="block text-sm font-medium mb-1">Name</label>

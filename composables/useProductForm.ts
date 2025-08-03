@@ -5,7 +5,7 @@ const schema = z.object({
   name: z.string().min(1),
   version: z.string().min(1),
   description: z.string().min(1),
-  price: z.number().positive()
+  price: z.number().default(0)
 })
 
 export const useProductForm = () => {
@@ -33,7 +33,7 @@ export const useProductForm = () => {
     form.value = {
       name: data.name || '',
       version: data.version || '',
-      description: data.details || '',
+      description: data.description || '',
       price: Number(data.price) || 0
     }
   }
